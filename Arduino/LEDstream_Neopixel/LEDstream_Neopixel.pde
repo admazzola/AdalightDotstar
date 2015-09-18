@@ -347,15 +347,11 @@ void loop() {
       lastByteTime = lastAckTime = t; // Reset timeout counters
       buffer[byteNum++] = c;          // Store in data buffer
       if(byteNum == 3) {              // Have a full LED's worth?
-        while(byteNum > 0) {         
-          //i = 0x80 | (buffer[byteOrder[--byteNum]] >> 1);
-          //while(!(SPSR & _BV(SPIF))); // Wait for prior byte out
-          // SPDR = i;                   // Issue new byte
-          
-          
-          strip.setPixelColor(ledIndex++, buffer[--byteNum]); //hopefully this works!
+         
+       // uint32_t color = buffer[2] << 16 + buffer[1]<<8 + buffer[0];
+        strip.setPixelColor(ledIndex++, pixels.Color(buffer[0],buffer[1],buffer[2])); //hopefully this works!
           strip.show();
-        }
+        
         remaining--;
       }
     } else { // No data, check for timeout...
