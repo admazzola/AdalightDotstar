@@ -382,7 +382,7 @@ void loop() {
          // SPDR = i;                   // Issue new byte
          
           strip.setPixelColor(i, c); //hopefully this works!
-          
+          strip.show();
         }
         remaining--;
       }
@@ -391,7 +391,7 @@ void loop() {
     }
   }
   
-  strip.show();
+ // strip.show();
   
 }
 
