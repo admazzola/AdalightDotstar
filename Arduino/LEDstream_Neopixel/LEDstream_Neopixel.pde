@@ -380,7 +380,8 @@ void loop() {
           
           //while(!(SPSR & _BV(SPIF))); // Wait for prior byte out
          // SPDR = i;                   // Issue new byte
-         //TODO: SET LED LIGHT VALUES HERE SOMEHOW!!!
+         
+          strip.setPixelColor(i, c); //hopefully this works!
           
         }
         remaining--;
@@ -389,6 +390,9 @@ void loop() {
       if(timeout(t, nLEDs) == true) return; // Start over
     }
   }
+  
+  strip.show();
+  
 }
 
 // Fill the dots one after the other with a color
