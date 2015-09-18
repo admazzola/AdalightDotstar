@@ -338,7 +338,7 @@ void loop() {
   bytesBuffered = 0; // Clear serial buffer
   byteNum = 0;
   
-  
+  int ledIndex = 0;
   
    // DATA-FORWARDING BLOCK: move bytes from serial input to LED output.
   while(remaining > 0) { // While more LED data is expected...
@@ -347,13 +347,13 @@ void loop() {
       lastByteTime = lastAckTime = t; // Reset timeout counters
       buffer[byteNum++] = c;          // Store in data buffer
       if(byteNum == 3) {              // Have a full LED's worth?
-        while(byteNum > 0) {          // Issue data in LPD8806 order...
-          i = 0x80 | (buffer[byteOrder[--byteNum]] >> 1);
-          
+        while(byteNum > 0) {         
+          //i = 0x80 | (buffer[byteOrder[--byteNum]] >> 1);
           //while(!(SPSR & _BV(SPIF))); // Wait for prior byte out
-         // SPDR = i;                   // Issue new byte
-         
-          strip.setPixelColor(i, c); //hopefully this works!
+          // SPDR = i;                   // Issue new byte
+          
+          
+          strip.setPixelColor(ledIndex++, buffer[--byteNum]); //hopefully this works!
           strip.show();
         }
         remaining--;
