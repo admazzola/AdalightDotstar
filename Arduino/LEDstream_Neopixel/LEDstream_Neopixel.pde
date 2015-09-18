@@ -220,34 +220,6 @@ static void latch(int n) {      // Pass # of LEDs
   }
 }
 
-// Function is called when no pending serial data is available.
-static boolean timeout(
-  unsigned long t,       // Current time, milliseconds
-  int           nLEDs) { // Number of LEDs
-
-  // If condition persists, send an ACK packet to host once every
-  // second to alert it to our presence.
-  if((t - lastAckTime) > 1000) {
-    Serial.print("Ada\n"); // Send ACK string to host
-    lastAckTime = t;       // Reset counter
-  }
-
-  // If no data received for an extended time, turn off all LEDs.
-  if((t - lastByteTime) > serialTimeout) {
-    long bytes = nLEDs * 3L;
-    latch(nLEDs);      // Latch any partial/incomplete data in strand
-    while(bytes--) {   // Issue all new data to turn off strand
-      while(!(SPSR & _BV(SPIF))); // Wait for prior byte out
-      SPDR = 0x80;                // Issue next byte (0x80 = LED off)
-    }
-    latch(nLEDs);      // Latch 'all off' data
-    lastByteTime  = t; // Reset counter
-    bytesBuffered = 0; // Clear serial buffer
-    return true;
-  }
-
-  return false; // No timeout
-}
 */
 
 
@@ -478,4 +450,30 @@ uint32_t Wheel(byte WheelPos) {
   }
   WheelPos -= 170;
   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+}
+
+// Function is called when no pending serial data is available.
+static boolean timeout(
+  unsigned long t,       // Current time, milliseconds
+  int           nLEDs) { // Number of LEDs
+  // If condition persists, send an ACK packet to host once every
+  // second to alert it to our presence.
+  if((t - lastAckTime) > 1000) {
+    Serial.print("Ada\n"); // Send ACK string to host
+    lastAckTime = t;       // Reset counter
+  }
+  // If no data received for an extended time, turn off all LEDs.
+  if((t - lastByteTime) > serialTimeout) {
+    long bytes = nLEDs * 3L;
+    latch(nLEDs);      // Latch any partial/incomplete data in strand
+    while(bytes--) {   // Issue all new data to turn off strand
+      while(!(SPSR & _BV(SPIF))); // Wait for prior byte out
+      SPDR = 0x80;                // Issue next byte (0x80 = LED off)
+    }
+    latch(nLEDs);      // Latch 'all off' data
+    lastByteTime  = t; // Reset counter
+    bytesBuffered = 0; // Clear serial buffer
+    return true;
+  }
+  return false; // No timeout
 }
