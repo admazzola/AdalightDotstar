@@ -119,12 +119,12 @@ void setup() {
   strip.show(); // Initialize all pixels to 'off'
   
  
- // rainbowCycle(3); //test
+  rainbowCycle(3); //test
 
   clearStrip();
   
   
-  Serial.print("Ada\n");                 // Send ACK string to host
+  Serial.print("Ack\n");                 // Send ACK string to host
   lastByteTime = lastAckTime = millis(); // Initialize timers
 }
 
@@ -134,9 +134,9 @@ void loop() {
   long          nLEDs, remaining;
   unsigned long t;
 
- // clearStrip();
- strip.setPixelColor(0, getColor(0xFF,0,0));
-  strip.show();
+Serial.print("start1");
+
+
  
   // HEADER-SEEKING BLOCK: locate 'magic word' at start of frame.
 
@@ -164,8 +164,6 @@ void loop() {
     }
   }
 
-  strip.setPixelColor(1, getColor(0xFF,0,0));
-  strip.show();
 
   // Magic word matches.  Now how about the checksum?
   hi = buffer[MAGICSIZE];
@@ -183,32 +181,57 @@ void loop() {
   byteNum = 0;
   
   int ledIndex = 0;
+
+  //first two sets of 3 are the header, the next 25 sets of 3 are the LED data!
+
+  
+  remaining = 25;   //override ?  works with 5 !  //DEF NEEDS TO BE 25
+
+  //seems to be plagued with the magic word after about 5 leds...
+ Serial.println("start2");
   
    // DATA-FORWARDING BLOCK: move bytes from serial input to LED output.
   while(remaining > 0) { // While more LED data is expected...
+    
      
     t = millis();
     if((c = Serial.read()) >= 0) {    // Successful read?
 
+      
+       /*
+       Serial.print(ledIndex);
+        Serial.print(" ");
+         Serial.print(byteNum);
+        Serial.print(" got ");
+         Serial.println(c);
+         */
+         
+//spot 1 is green
+//spot 2 is blue
+
+         //wants an unsigned int!!
         
       lastByteTime = lastAckTime = t; // Reset timeout counters
       buffer[byteNum++] = c;          // Store in data buffer
       if(byteNum == 3) {              // Have a full LED's worth?
  
        // uint32_t color = buffer[2] << 16 + buffer[1]<<8 + buffer[0];
-       strip.setPixelColor(ledIndex, getColor(buffer[0],buffer[1],buffer[2])); //hopefully this works!
+
+        //r g b
+        if(ledIndex < 20)  //quick fix to get rid of weird green and pink static leds..
+       strip.setPixelColor(ledIndex+5, getColor(buffer[1],buffer[0],buffer[2])); //hopefully this works!
         
         // strip.setPixelColor(ledIndex, getColor(0xFF,0,0));
        
          byteNum = 0;
          
         ledIndex++;
-        remaining--;
+        remaining--;  //this is borked?  27 or 30 ?
       }
     } else { // No data, check for timeout...
      
       
-      if(timeout(t, nLEDs) == true) return; // Start over
+      if(timeout(t, nLEDs) == true) return; // Start over - if it cycles you know it timed out
     }
 
 
