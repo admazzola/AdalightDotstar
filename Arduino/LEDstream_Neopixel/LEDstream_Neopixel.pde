@@ -219,7 +219,7 @@ Serial.print("start1");
 
         //r g b
         if(ledIndex < 20)  //quick fix to get rid of weird green and pink static leds..
-       strip.setPixelColor(ledIndex+5, getColor(buffer[1],buffer[0],buffer[2])); //hopefully this works!
+       strip.setPixelColor(ledIndex+5, getColor(buffer[2],buffer[0],buffer[1])); //this is the correct color order
         
         // strip.setPixelColor(ledIndex, getColor(0xFF,0,0));
        
