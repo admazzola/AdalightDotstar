@@ -153,7 +153,7 @@ void setup() {
   // Open serial port.  As written here, this assumes the Arduino is the
   // first/only serial device on the system.  If that's not the case,
   // change "Serial.list()[0]" to the name of the port to be used:
-  port = new Serial(this, Serial.list()[0], 115200);
+  port = new Serial(this, Serial.list()[1], 115200);
   // Alternately, in certain situations the following line can be used
   // to detect the Arduino automatically.  But this works ONLY with SOME
   // Arduino boards and versions of Processing!  This is so convoluted
@@ -238,7 +238,8 @@ void setup() {
   }
 
   // Preview window shows all screens side-by-side
-  size(totalWidth * pixelSize, maxHeight * pixelSize, JAVA2D);
+ // size(totalWidth * pixelSize, maxHeight * pixelSize, JAVA2D);
+ size(200,200,JAVA2D);
   noSmooth();
 
   // A special header / magic word is expected by the corresponding LED
@@ -392,7 +393,15 @@ void draw () {
      (ledColor[i][0] << 16) | (ledColor[i][1] << 8) | ledColor[i][2];
   }
 
-  if(port != null) port.write(serialData); // Issue data to Arduino
+  if(port != null){
+    port.write(serialData); // Issue data to Arduino
+    
+    //print("sent");
+    //println(serialData);
+   }else{
+    println("port null");
+  }
+
 
   // Show live preview image(s)
   scale(pixelSize);
@@ -402,6 +411,10 @@ void draw () {
     i += displays[d][1] + 1;
   }
 
+
+ while((c =  port.read()  ) >= 0) { 
+   print (char(c)); // whatever we hear, put into the console
+ }
   println(frameRate); // How are we doing?
 
   // Copy LED color data to prior frame array for next pass
@@ -418,7 +431,7 @@ void draw () {
 
 public class DisposeHandler {
   DisposeHandler(PApplet pa) {
-    pa.registerDispose(this);
+ //   pa.registerDispose(this);
   }
   public void dispose() {
     // Fill serialData (after header) with 0's, and issue to Arduino...
@@ -427,4 +440,3 @@ public class DisposeHandler {
     if(port != null) port.write(serialData);
   }
 }
-
