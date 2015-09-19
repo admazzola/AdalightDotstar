@@ -241,6 +241,8 @@ void setup() {
  // size(totalWidth * pixelSize, maxHeight * pixelSize, JAVA2D);
  size(200,200,JAVA2D);
   noSmooth();
+  
+  println("sending magic sequence ONLY IN SETUP AT INIT");
 
   // A special header / magic word is expected by the corresponding LED
   // streaming code running on the Arduino.  This only needs to be initialized
@@ -292,7 +294,7 @@ Serial openPort() {
     while((millis() - start) < timeout) {
       if((s.available() >= 4) &&
         ((ack = s.readString()) != null) &&
-        ack.contains("Ada\n")) {
+        ack.contains("Ack\n")) {
           return s; // Got it!
       }
     }
@@ -385,19 +387,31 @@ void draw () {
     }
 
     // Apply gamma curve and place in serial output buffer
+    
+    
     serialData[j++] = gamma[ledColor[i][0]][0];
     serialData[j++] = gamma[ledColor[i][1]][1];
     serialData[j++] = gamma[ledColor[i][2]][2];
+    
+    /*
+      serialData[j++] = 11;
+    serialData[j++] = 111;
+    serialData[j++] = 11;   //should make them all green (unless its broken)
+    */
+    
+    
     // Update pixels in preview image
     preview[d].pixels[leds[i][2] * displays[d][1] + leds[i][1]] =
      (ledColor[i][0] << 16) | (ledColor[i][1] << 8) | ledColor[i][2];
   }
 
   if(port != null){
-    port.write(serialData); // Issue data to Arduino
+     port.write(serialData); // Issue data to Arduino
     
-    //print("sent");
-    //println(serialData);
+     delay(120);   //let arduino do its slow thing...
+     
+   // print("sent ");
+   // println(serialData);
    }else{
     println("port null");
   }
@@ -413,9 +427,10 @@ void draw () {
 
 
  while((c =  port.read()  ) >= 0) { 
-   print (char(c)); // whatever we hear, put into the console
+
+   print(char(c)); // whatever we hear, put into the console
  }
-  println(frameRate); // How are we doing?
+  //println(frameRate); // How are we doing?
 
   // Copy LED color data to prior frame array for next pass
   arraycopy(ledColor, 0, prevColor, 0, ledColor.length);
